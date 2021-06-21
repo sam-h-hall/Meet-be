@@ -6,6 +6,7 @@ const app = express();
 const server = require("http").createServer(app);
 const io = new Server(server, {
   cors: true,
+  // accept all incoming connections
   origins: ["*"],
 });
 
@@ -18,8 +19,9 @@ app.get("/", (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`*** Listening on port 8000 ***`)
+  console.log(`*** Listening on port ${PORT} ***`)
 })
 
 // attach socket to express server
 io.listen(server);
+require("./socket.js")(io);
