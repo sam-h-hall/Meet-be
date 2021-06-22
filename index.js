@@ -1,13 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const { Server } = require("socket.io");
-
 const app = express();
-const server = require("http").createServer(app);
+
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: true,
-  // accept all incoming connections
-  origins: ["*"],
+  origins: ['*'],
 });
 
 const PORT = process.env.PORT || 8000;
@@ -15,13 +15,14 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 
 app.get("/", (req, res) => {
+  console.log(req);
   res.send("hello world");
 });
 
 server.listen(PORT, () => {
-  console.log(`*** Listening on port ${PORT} ***`)
-})
+  console.log(`*** Listening on port ${PORT} ***`);
+});
 
 // attach socket to express server
 io.listen(server);
-require("./socket.js")(io);
+require("./socket")(io);
