@@ -1,6 +1,6 @@
 const socket = (io) => {
   io.on("connection", (client) => {
-    console.log(client)
+    //console.log(client)
     console.log("new connection: ", client.id);
     client.join("room1");
     client.on("chat message", (msg) => {
