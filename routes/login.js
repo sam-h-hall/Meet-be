@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const pwdEncrypt = require("../middleware/pwd-encrypt");
+//const pwdEncrypt = require("../middleware/pwd-encrypt");
 //const pwdVerify = require("../middleware/pwd-verify");
 
 router.get("/", (req, res) => {
@@ -7,7 +7,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log(req.body.password);
+
   const hash = await pwdEncrypt(req.body.password);
   console.log("login: ", hash);
 
