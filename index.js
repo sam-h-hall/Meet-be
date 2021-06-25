@@ -2,27 +2,19 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const http = require("http");
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server, {
-  cors: true,
-  origins: ['*'],
-});
-
-const PORT = process.env.PORT || 8000;
+// route components
+const login = require("./routes/login");
+const register = require("./routes/register");
 
 app.use(cors());
+app.use(express.json());
+
+app.use("/login", login);
+app.use("/register", register);
 
 app.get("/", (req, res) => {
   console.log(req);
-  res.send("hello world");
+  res.send("server up and running");
 });
 
-server.listen(PORT, () => {
-  console.log(`*** Listening on port ${PORT} ***`);
-});
-
-// attach socket to express server
-io.listen(server);
-require("./socket")(io);
+module.exports = app;
