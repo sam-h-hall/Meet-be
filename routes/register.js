@@ -11,14 +11,16 @@ const connector = mongoose.connect(uri, {
 
 router.post("/", async (req, res) => {
   const { username, password, email } = req.body;
+  console.log(`${username}, ${password}, ${email}`)
 
   try {
     if (!username || !password || !email) {
       res.status(400).json({
         err: "Username, password, and email are required fields",
       });
-    } else {
-      let usernameTaken = await user.findOne({ username });
+    } 
+    else {
+      let usernameTaken = await User.findOne({ username });
       let emailTaken = await User.findOne({ email });
 
       if (usernameTaken) {
@@ -34,8 +36,12 @@ router.post("/", async (req, res) => {
       }
     }
 
+    console.log("bef gensalt")
+
     bcrypt.genSalt(10, (err, salt) => {
+      if (err) err;
       bcrypt.hash(password, salt, async (err, hash) => {
+        if (err) err;
         const newUser = await new User({
           username,
           email,
@@ -44,15 +50,11 @@ router.post("/", async (req, res) => {
         return connector.then(() => {
           res.status(201).json({
             success: "New user registered",
-            newUser,
+            newUser
           });
         });
       });
     });
-
-    //res.status(201).json({
-    //success: "new user created",
-    //});
   } catch (err) {
     res.status(500).json({
       err: err.message,
