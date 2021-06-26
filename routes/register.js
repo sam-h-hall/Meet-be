@@ -14,35 +14,35 @@ const connector = mongoose
 
 router.post("/", async (req, res) => {
   const { username, password, email } = req.body;
-  console.log(`${username}, ${password}, ${email}`);
 
   try {
     if (!username || !password || !email) {
-      res.status(400).json({
-        err: "Username, password, and email are required fields",
+      return res.status(400).send({
+        error: "Username, password, and email are required fields",
       });
     } else {
       let usernameTaken = await User.findOne({ username });
       let emailTaken = await User.findOne({ email });
 
       if (usernameTaken) {
-        res.status(400).json({
-          err: "Username taken",
+        console.log("username taken")
+        return res.status(400).send({
+          error: "Username taken",
         });
       }
 
       if (emailTaken) {
-        res.status(400).json({
-          err: "Email taken",
+        console.log("email taken")
+        return res.status(400).json({
+          error: "Email taken",
         });
       }
     }
-    // need this here because we have to add the user to the database within the hash
-    // function (since it is async)
+    // put this in here because we have to save the user to the db inside of the hashing function
     bcrypt.genSalt(10, (err, salt) => {
-      if (err) err;
+      console.log("genSalt");
       bcrypt.hash(password, salt, async (err, hash) => {
-        if (err) err;
+        console.log("hash");
         const newUser = await new User({
           username,
           email,
@@ -50,13 +50,13 @@ router.post("/", async (req, res) => {
         }).save();
         return connector
           .then(() => {
-            res.status(201).json({
+            return res.status(201).json({
               success: "New user registered",
               newUser,
             });
           })
           .catch((err) => {
-            res.status(500).json({
+            return res.status(500).json({
               err: err.message,
               msg: "Server error",
             });
@@ -64,7 +64,7 @@ router.post("/", async (req, res) => {
       });
     });
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       err: err.message,
       msg: "Server error fulfilling request",
     });
