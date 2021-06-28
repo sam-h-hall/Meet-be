@@ -1,7 +1,11 @@
+require("dotenv").config()
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
+
+console.log(process.env.PORT)
 
 const http = require("http");
 const server = http.createServer(app);
@@ -34,7 +38,6 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  console.log(req);
   res.send("server up and running");
 });
 
@@ -53,19 +56,19 @@ server.listen(PORT, () => {
 io.listen(server);
 require("./socket")(io);
 
-const uri =
-  "mongodb+srv://sam-h-hall:bfHn3Bcre9AdsrHM@cluster0.avbwg.mongodb.net/Meet-db?retryWrites=true&w=majority";
+//const uri =
+  //"mongodb+srv://sam-h-hall:bfHn3Bcre9AdsrHM@cluster0.avbwg.mongodb.net/Meet-db?retryWrites=true&w=majority";
 
-mongoose
-  .connect(uri, {
+const connector = mongoose
+  .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
-    console.log("MongoDB connected!!");
+  .then((res) => {
+    return res
   })
   .catch((err) => {
-    console.log(err.message);
+    return err
   });
 
-module.exports = app;
+module.exports = {app, connector};
