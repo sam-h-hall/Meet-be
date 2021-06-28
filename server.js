@@ -5,8 +5,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
 
-console.log(process.env.PORT)
-
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
