@@ -2,9 +2,8 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const User = require("../database/db-schema/user");
-//const { connector } = require("../server");
-//const uri =
-  //"mongodb+srv://sam-h-hall:bfHn3Bcre9AdsrHM@cluster0.avbwg.mongodb.net/Meet-db?retryWrites=true&w=majority";
+const genJwt = require("../utils/gen-jwt");
+
 const connector = mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -12,6 +11,16 @@ const connector = mongoose
   })
   .then((res) => res)
   .catch((err) => err.message);
+
+router.get('/', async(req, res) => {
+  try {
+    res.status(200).send( await User.find({}))
+  } catch {
+    res.status(500).json({
+      err: "Server err"
+    })
+  }
+})
 
 router.post("/", async (req, res) => {
   const { username, password, email } = req.body;
@@ -50,6 +59,7 @@ router.post("/", async (req, res) => {
             return res.status(201).json({
               success: "New user registered",
               newUser,
+              token: genJwt(newUser)
             });
           })
           .catch((err) => {
