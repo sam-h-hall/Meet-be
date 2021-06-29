@@ -12,16 +12,6 @@ const connector = mongoose
   .then((res) => res)
   .catch((err) => err.message);
 
-router.get('/', async(req, res) => {
-  try {
-    res.status(200).send( await User.find({}))
-  } catch {
-    res.status(500).json({
-      err: "Server err"
-    })
-  }
-})
-
 router.post("/", async (req, res) => {
   const { username, password, email } = req.body;
 
