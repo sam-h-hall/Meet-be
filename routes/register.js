@@ -46,9 +46,14 @@ router.post("/", async (req, res) => {
         }).save();
         return connector
           .then(() => {
+            const { _id, username, email } = newUser;
             return res.status(201).json({
               success: "New user registered",
-              newUser,
+              user: {
+                _id,
+                username,
+                email
+              },
               token: genJwt(newUser)
             });
           })
