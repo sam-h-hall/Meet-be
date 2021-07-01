@@ -1,13 +1,13 @@
-const { io } = require("../server");
+const verifyJwt = require("../utils/verify-jwt");
 
-module.exports = (req, next) => {
-  io.use((socket, next) => {
-    const { query } = socket.handshake,
-      { token } = query;
-
-    if (query && token) {
-      socket.decoded = verifyJwt(token);
-      next();
-    }
-  });
+module.exports = (socket, next) => {
+  const { query } = socket.handshake,
+    { token } = query;
+  //{ token } = query;
+  if (query && token) {
+    socket.decoded = verifyJwt(token);
+    next();
+  } else {
+    console.log("socket: something went wrong");
+  }
 };
