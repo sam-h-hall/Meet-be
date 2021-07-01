@@ -54,8 +54,22 @@ server.listen(PORT, () => {
 });
 
 // attach socket to express server
+const socket = require("./socket");
+
+io.use((socket, next) => {
+  const { query } = socket.handshake,
+    { token } = query;
+  //{ token } = query;
+  if (query && token) {
+    socket.decoded = verifyJwt(token);
+    next();
+  } else {
+    console.log("socket: something went wrong");
+  }
+});
+
 io.listen(server);
-require("./socket")(io);
+socket(io);
 
 const connector = mongoose
   .connect(process.env.MONGO_URI, {
