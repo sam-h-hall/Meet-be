@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -12,14 +12,15 @@ const io = new Server(server, {
   cors: true,
   origins: [
     "*",
-    "localhost",
+    "http://localhost:3000",
+    "http://localhost:3000/login",
     "http://localhost:3000/login",
     "http://localhost:3000/register",
   ],
 });
 
-const login = require("./routes/login");
-const register = require("./routes/register");
+const verifyJwt = require("./utils/verify-jwt");
+const jwtCheck = require("./middleware/jwt-check");
 
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*", "localhost:3000"); // update to match the domain you will make the request from
@@ -35,8 +36,10 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.get("/", (req, res) => {
-  res.send("server up and running");
+app.get("/", jwtCheck, (req, res) => {
+  //const token = req.headers.authorization;
+  //verifyToken = verifyJwt(token)
+  res.json({ msg: "server up and running" });
 });
 
 app.use(cors());
@@ -54,19 +57,16 @@ server.listen(PORT, () => {
 io.listen(server);
 require("./socket")(io);
 
-//const uri =
-  //"mongodb+srv://sam-h-hall:bfHn3Bcre9AdsrHM@cluster0.avbwg.mongodb.net/Meet-db?retryWrites=true&w=majority";
-
 const connector = mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then((res) => {
-    return res
+    return res;
   })
   .catch((err) => {
-    return err
+    return err;
   });
 
-module.exports = {app, connector};
+module.exports = { app, connector };
