@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const app = express();
 
 const http = require("http");
@@ -12,62 +11,31 @@ const io = new Server(server, {
   cors: true,
   origins: [
     "*",
-    "http://localhost:3000",
-    "http://localhost:3000/login",
-    "http://localhost:3000/login",
-    "http://localhost:3000/register",
+    "http://localhost",
   ],
 });
 
-const verifyJwt = require("./utils/verify-jwt");
 const jwtCheck = require("./middleware/jwt-check");
-
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*", "localhost:3000"); // update to match the domain you will make the request from
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTION, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  next();
-});
-
-app.get("/", jwtCheck, (req, res) => {
-  //const token = req.headers.authorization;
-  //verifyToken = verifyJwt(token)
-  res.json({ msg: "server up and running" });
-});
-
-app.use(cors());
-app.use(express.json());
-
-require("./routes/index")(app);
+const corsHeader = require("./middleware/cors-header");
 
 const PORT = process.env.PORT || 8000;
+const socket = require("./socket");
+
+app.use(corsHeader);
+app.use(express.json());
+require("./routes/index")(app);
+
+io.use(require("./middleware/socket-jwt-check"));
+
+app.get("/", jwtCheck, (res) => {
+  res.json({ msg: "server up and running" });
+});
 
 server.listen(PORT, () => {
   console.log(`App listening on port: ${PORT}`);
 });
 
 // attach socket to express server
-const socket = require("./socket");
-
-io.use((socket, next) => {
-  const { query } = socket.handshake,
-    { token } = query;
-  //{ token } = query;
-  if (query && token) {
-    socket.decoded = verifyJwt(token);
-    next();
-  } else {
-    console.log("socket: something went wrong");
-  }
-});
-
 io.listen(server);
 socket(io);
 
