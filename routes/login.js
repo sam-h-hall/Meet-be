@@ -7,7 +7,6 @@ router.post("/", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-
     const [match] = await User.find({ username });
 
     if (!match) {
