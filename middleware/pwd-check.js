@@ -1,3 +1,0 @@
-const bcrypt = require("bcryptjs");
-
-module.exports = (pwd) => {}
