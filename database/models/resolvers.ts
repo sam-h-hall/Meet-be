@@ -15,7 +15,6 @@ interface registerCredentials extends loginCredentials {
 export const resolvers = {
   Query: {
     hello: () => "hi",
-    // userCrednetials should be a User type
   },
   Mutation: {
     register: async (_: any, newUserCredentials: registerCredentials) => {
@@ -56,29 +55,21 @@ export const resolvers = {
           },
           token: genJwt(newUser),
         };
-
-       
       } catch (err) {
         console.log("err ", err);
       }
     },
     login: async (_: any, userCredentials: loginCredentials) => {
-      console.log(userCredentials);
       const { username, password } = userCredentials;
       try {
         const [match] = await User.find({ username });
-        console.log(match);
         const approved = compareSync(password, match.password);
-        console.log("graphql login resolver ", match);
 
         if (!approved) {
           throw new Error("Invalid Credentials");
         } else {
           const token = genJwt(match);
-          console.log("user: ", {
-            user: { _id: match._id, username, email: match.email },
-            token,
-          });
+
           return {
             user: {
               _id: match._id,
@@ -89,8 +80,7 @@ export const resolvers = {
           };
         }
       } catch (err) {
-        console.log("err");
-        console.log(err);
+        console.log("err: ", err);
       }
     },
   },
