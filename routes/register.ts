@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { genSalt, hash } from "bcryptjs";
-import User from "../database/db-schema/user";
+import User from "../database/models/User";
 import genJwt from "../utils/gen-jwt";
 
 const router = Router();
@@ -14,8 +14,9 @@ router.post("/", async (req, res) => {
         error: "Username, password, and email are required fields",
       });
     } else {
-      let usernameTaken: boolean = await User.findOne({ username });
-      let emailTaken: boolean = await User.findOne({ email });
+      let usernameTaken: {} = await User.findOne({ username });
+      console.log("username taken", usernameTaken);
+      let emailTaken: {} = await User.findOne({ email });
 
       if (usernameTaken) {
         return res.status(400).send({
@@ -30,44 +31,50 @@ router.post("/", async (req, res) => {
       }
     }
     genSalt(10, (err, salt) => {
+      console.log("hit salt");
       if (err) {
-        console.log("register gen salt err: ", err);
-        return;
+        throw "salt err";
+        //console.log("register gen salt err: ", err);
+        //return;
       }
       hash(password, salt, async (err, hash) => {
+        console.log("hit hash");
         if (err) {
-          console.log("register hash err: ", err);
-          return;
+          throw "hash err";
         }
-        const newUser = await new User({
+        const newUser = new User({
           username,
           email,
           password: hash,
         })
           .save()
-          .then((res: any) => {
-            const { _id, username, email } = newUser;
-            return res.status(201).json({
+          .then((newUserInfo: any) => {
+            const { _id, username, email } = newUserInfo;
+            const token = genJwt(newUserInfo);
+
+            res.status(201).json({
               success: "New user registered",
               user: {
                 _id,
                 username,
                 email,
               },
-              token: genJwt(newUser),
+              token,
             });
           })
           .catch((err: any) => {
-            return res.status(500).json({
-              err: err.message,
+            console.log("catch1: ", err);
+            res.status(500).json({
+              err,
               msg: "Server error",
             });
           });
       });
     });
   } catch (err) {
-    return res.status(500).json({
-      err: err.message,
+    console.log("catch2");
+    res.status(500).json({
+      err,
       msg: "Server error fulfilling request",
     });
   }

@@ -5,10 +5,10 @@ const socket = (io: any) => {
     client.join(globRoom);
     client.on(
       "chat message",
-      (msg: { _from_id: string; from: string; message: string }) => {
+      (msg: { _from_id: string; from_id: string; message: string }) => {
         console.log("Full message ", msg);
-        const { message, from } = msg;
-        io.sockets.to(globRoom).emit("message", { message, from });
+        const { message, from_id } = msg;
+        io.sockets.to(globRoom).emit("message", { message, from_id });
       }
     );
   });
